@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 
 namespace slakken {
   /**
@@ -41,6 +42,11 @@ namespace slakken {
     std::size_t root_count() const override;
     value const& root_at(std::size_t) const override;
   };
+
+  /**
+   * A mapping from function names to function identifiers.
+   */
+  using function_map = std::unordered_map<std::size_t, std::size_t>;
 
   /**
    * An error that occurs during bytecode decoding.
@@ -97,5 +103,5 @@ namespace slakken {
    *
    * \exception decode_error on invalid input.
    */
-  std::vector<instruction> decode_instructions(const_pool const&, char const*, std::size_t);
+  std::vector<instruction> decode_instructions(function_map const&, const_pool const&, char const*, std::size_t);
 }

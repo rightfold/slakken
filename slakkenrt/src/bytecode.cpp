@@ -89,7 +89,7 @@ void slakken::decode_constants(const_pool& consts, alloc& alloc, char const* bin
   }
 }
 
-std::vector<instruction> slakken::decode_instructions(const_pool const& consts, char const* binary, std::size_t binary_size) {
+std::vector<instruction> slakken::decode_instructions(function_map const& functions, const_pool const& consts, char const* binary, std::size_t binary_size) {
   std::vector<instruction> insts;
   for (auto begin = binary, end = binary + binary_size; begin != end;) {
 #include "../build/decode.inc"

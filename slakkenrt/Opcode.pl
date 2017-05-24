@@ -21,14 +21,20 @@ sub write_decode {
   print $decode_inc "  inst.what = opcode::$mnemonic_ident;\n";
   for my $i (0 .. $#operands) {
     my $operand = $operands[$i];
+    print $decode_inc "{\n";
     if ($operand eq 'imm') {
-      print $decode_inc "  auto value = decode<std::uint32_t>(begin, end);\n";
-      print $decode_inc "  inst.op$i.imm = value;\n";
+      print $decode_inc "    auto value = decode<std::uint32_t>(begin, end);\n";
+      print $decode_inc "    inst.op$i.imm = value;\n";
+    }
+    if ($operand eq 'fun') {
+      print $decode_inc "    auto index = decode<std::uint32_t>(begin, end);\n";
+      print $decode_inc "    inst.op$i.fun = functions.at(index);\n";
     }
     if ($operand eq 'val') {
-      print $decode_inc "  auto index = decode<std::uint32_t>(begin, end);\n";
-      print $decode_inc "  inst.op$i.val = consts.at(index);\n";
+      print $decode_inc "    auto index = decode<std::uint32_t>(begin, end);\n";
+      print $decode_inc "    inst.op$i.val = consts.at(index);\n";
     }
+    print $decode_inc "}\n";
   }
   print $decode_inc "  insts.push_back(inst);\n";
   print $decode_inc "  continue;\n";
