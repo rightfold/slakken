@@ -27,6 +27,8 @@ namespace slakken {
 
     void collect_garbage();
 
+    std::size_t stat_live() const;
+
   private:
     struct value_delete {
       void operator()(value const*) const;

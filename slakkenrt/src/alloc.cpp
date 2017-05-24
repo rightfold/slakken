@@ -74,6 +74,10 @@ void alloc::collect_garbage() {
   }
 }
 
+std::size_t alloc::stat_live() const {
+  return values.size();
+}
+
 void alloc::value_delete::operator()(value const* pointer) const {
   pointer->~value();
   operator delete(const_cast<value*>(pointer));
