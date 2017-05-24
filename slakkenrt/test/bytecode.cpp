@@ -7,6 +7,7 @@
 #include <cstdint>
 
 using namespace slakken;
+using namespace slakken::bytecode;
 
 TEST_CASE("decode_const_pool", "[decode_const_pool]") {
   const_pool consts;

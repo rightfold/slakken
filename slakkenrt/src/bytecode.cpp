@@ -1,10 +1,12 @@
 #include "bytecode.hpp"
+#include "value.hpp"
 
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
 
 using namespace slakken;
+using namespace slakken::bytecode;
 
 std::size_t const_pool::root_count() const {
   return size();
@@ -71,7 +73,7 @@ namespace {
   }
 }
 
-void slakken::decode_const_pool(const_pool& consts, alloc& alloc, char const* binary, std::size_t binary_size) {
+void slakken::bytecode::decode_const_pool(const_pool& consts, alloc& alloc, char const* binary, std::size_t binary_size) {
   for (auto begin = binary, end = binary + binary_size; begin != end;) {
     switch (*begin++) {
     case 0x00:
@@ -89,7 +91,7 @@ void slakken::decode_const_pool(const_pool& consts, alloc& alloc, char const* bi
   }
 }
 
-std::vector<instruction> slakken::decode_instructions(function_map const& functions, const_pool const& consts, char const* binary, std::size_t binary_size) {
+std::vector<instruction> slakken::bytecode::decode_instructions(function_map const& functions, const_pool const& consts, char const* binary, std::size_t binary_size) {
   std::vector<instruction> insts;
   for (auto begin = binary, end = binary + binary_size; begin != end;) {
 #include "../build/decode.inc"
