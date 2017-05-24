@@ -5,6 +5,8 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <stdexcept>
+#include <string>
 
 namespace slakken {
   /**
@@ -28,30 +30,60 @@ namespace slakken {
    */
   struct instruction {
     opcode what;
+    operand op0;
     operand op1;
-    operand op2;
   };
 
   /**
-   * A sequence of instructions.
+   * Constants from a bytecode file.
    */
-  struct bytecode : soil {
+  struct const_pool : std::vector<value const*>, soil {
     std::size_t root_count() const override;
     value const& root_at(std::size_t) const override;
-
-    /**
-     * All the value operands.
-     */
-    std::vector<value const*> roots;
-
-    /**
-     * The instruction to be executed, starting at the first one.
-     */
-    std::vector<instruction> instructions;
   };
 
   /**
-   * Decode bytecode.
+   * An error that occurs during bytecode decoding.
    */
-  bytecode decode(alloc&, char const*, std::size_t);
+  class decode_error : public std::runtime_error {
+  public:
+    using std::runtime_error::runtime_error;
+  };
+
+  /**
+   * An error that occurs because there was too little data when decoding
+   * bytecode.
+   */
+  class decode_eof_error : public decode_error {
+  public:
+    decode_eof_error();
+  };
+
+  /**
+   * An error that occurs because a constant pool entry had an invalid type.
+   */
+  class decode_const_type_error : public decode_error {
+  public:
+    decode_const_type_error();
+  };
+
+  /**
+   * An error that occurs because an instruction had an invalid opcode.
+   */
+  class decode_opcode_error : public decode_error {
+  public:
+    decode_opcode_error();
+  };
+
+  /**
+   * Decode bytecode constants.
+   *
+   * \relate const_pool
+   */
+  void decode_constants(const_pool&, alloc&, char const*, std::size_t);
+
+  /**
+   * Decode bytecode instructions.
+   */
+  std::vector<instruction> decode_instructions(const_pool const&, char const*, std::size_t);
 }

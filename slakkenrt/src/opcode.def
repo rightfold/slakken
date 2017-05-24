@@ -8,8 +8,7 @@
 0x22 mul.int
 
 0x30 ld.param imm
-0x31 ld.const.atom atom
-0x32 ld.const.int int
+0x31 ld.const val
 
 0x40 alloc.array imm
 

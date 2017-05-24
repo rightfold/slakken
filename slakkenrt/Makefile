@@ -30,12 +30,10 @@ build/slakken-test: build/test/main.o ${OBJECTS} ${TEST_OBJECTS}
 	mkdir -p $(dir $@)
 	${LD} ${LDFLAGS} $^ -o $@
 
-build/%.o: %.cpp ${HEADERS} ${TEST_HEADERS}
+build/%.o: %.cpp ${HEADERS} ${TEST_HEADERS} build/opcode.inc build/decode.inc
 	mkdir -p $(dir $@)
 	${CXX} ${CXXFLAGS} -c -o $@ $<
 
-src/bytecode.hpp: build/opcode.inc
-
-build/opcode.inc: src/opcode.def
+build/opcode.inc build/decode.inc: src/opcode.def
 	mkdir -p $(dir $@)
 	perl Opcode.pl
