@@ -1,0 +1,20 @@
+0x00 nop
+0x01 brk
+
+0x10 ck.param.eq imm
+
+0x20 neg.int
+0x21 add.int
+0x22 mul.int
+
+0x30 ld.param imm
+0x31 ld.const.atom atom
+0x32 ld.const.int int
+
+0x40 alloc.array imm
+
+0x50 br.lt.int imm
+
+0x60 ret
+0x61 call.direct fun imm
+0x62 call.direct.tail fun imm

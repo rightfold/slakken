@@ -19,7 +19,7 @@ test: build/slakken-test
 	$<
 
 .PHONY: docs
-docs:
+docs: ${SOURCES} ${HEADERS}
 	doxygen Doxyfile
 
 build/slakken: build/src/main.o ${OBJECTS}
@@ -33,3 +33,9 @@ build/slakken-test: build/test/main.o ${OBJECTS} ${TEST_OBJECTS}
 build/%.o: %.cpp ${HEADERS} ${TEST_HEADERS}
 	mkdir -p $(dir $@)
 	${CXX} ${CXXFLAGS} -c -o $@ $<
+
+src/bytecode.hpp: build/opcode.inc
+
+build/opcode.inc: src/opcode.def
+	mkdir -p $(dir $@)
+	perl Opcode.pl
