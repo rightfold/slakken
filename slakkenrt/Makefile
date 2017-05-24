@@ -18,6 +18,10 @@ all: build/slakken
 test: build/slakken-test
 	$<
 
+.PHONY: docs
+docs:
+	doxygen Doxyfile
+
 build/slakken: build/src/main.o ${OBJECTS}
 	mkdir -p $(dir $@)
 	${LD} ${LDFLAGS} $^ -o $@

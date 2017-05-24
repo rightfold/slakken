@@ -5,6 +5,9 @@
 #include <string>
 
 namespace slakken {
+  /**
+   * A value.
+   */
   class value {
   public:
     value() noexcept;
@@ -14,7 +17,14 @@ namespace slakken {
     value& operator=(value&&) = delete;
     virtual ~value();
 
+    /**
+     * Report how many references this value contains.
+     */
     virtual std::size_t size() const;
+
+    /**
+     * Report the reference at the specified index, which must be in bounds.
+     */
     virtual value const& operator[](std::size_t) const;
 
   private:
@@ -23,6 +33,9 @@ namespace slakken {
     friend class alloc;
   };
 
+  /**
+   * An array value.
+   */
   class array_value : public value {
   public:
     std::size_t size() const override;
@@ -40,8 +53,14 @@ namespace slakken {
     friend class alloc;
   };
 
+  /**
+   * An atom value.
+   */
   class atom_value : public value {
   public:
+    /**
+     * Report the name of the atom.
+     */
     std::string get_string() const;
 
   private:
@@ -56,8 +75,14 @@ namespace slakken {
     friend class alloc;
   };
 
+  /**
+   * A float value.
+   */
   class float_value : public value {
   public:
+    /**
+     * Report the value of the value.
+     */
     double get() const noexcept;
 
   private:

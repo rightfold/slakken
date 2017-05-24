@@ -2,6 +2,8 @@ all: all-slakkenc all-slakkenrt
 
 test: test-slakkenc test-slakkenrt
 
+docs: docs-slakkenrt
+
 .PHONY: slakkenc
 all-slakkenc:
 	${MAKE} -C slakkenc all
@@ -17,3 +19,7 @@ all-slakkenrt:
 .PHONY: test-slakkenrt
 test-slakkenrt:
 	${MAKE} -C slakkenrt test
+
+.PHONY: docs-slakkenrt
+docs-slakkenrt:
+	${MAKE} -C slakkenrt docs
