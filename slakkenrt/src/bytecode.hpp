@@ -79,11 +79,15 @@ namespace slakken {
    * Decode bytecode constants.
    *
    * \relate const_pool
+   *
+   * \exception decode_error on invalid input.
    */
   void decode_constants(const_pool&, alloc&, char const*, std::size_t);
 
   /**
    * Decode bytecode instructions.
+   *
+   * \exception decode_error on invalid input.
    */
   std::vector<instruction> decode_instructions(const_pool const&, char const*, std::size_t);
 }
