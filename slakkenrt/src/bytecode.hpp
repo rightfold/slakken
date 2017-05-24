@@ -68,6 +68,14 @@ namespace slakken {
   };
 
   /**
+   * An error that occurs because a constant pool lookup was out of range.
+   */
+  class decode_const_range_error : public decode_error {
+  public:
+    decode_const_range_error();
+  };
+
+  /**
    * An error that occurs because an instruction had an invalid opcode.
    */
   class decode_opcode_error : public decode_error {

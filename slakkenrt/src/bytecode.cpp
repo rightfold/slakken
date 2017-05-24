@@ -22,6 +22,10 @@ decode_const_type_error::decode_const_type_error()
   : decode_error("invalid constant type") {
 }
 
+decode_const_range_error::decode_const_range_error()
+  : decode_error("constant index out of range") {
+}
+
 decode_opcode_error::decode_opcode_error()
   : decode_error("invalid opcode") {
 }
@@ -43,7 +47,10 @@ namespace {
     std::vector<value const*> elements;
     for (decltype(length) i = 0; i < length; ++i) {
       auto element_index = decode<std::uint32_t>(begin, end);
-      elements.push_back(consts.at(element_index));
+      if (element_index >= consts.size()) {
+        throw decode_const_range_error();
+      }
+      elements.push_back(consts[element_index]);
     }
     consts.push_back(&alloc.alloc_array(elements.data(), elements.size()));
   }

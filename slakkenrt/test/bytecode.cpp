@@ -51,7 +51,7 @@ TEST_CASE("decode_constants", "[decode_constants]") {
       0x00, 0x00, 0x00, 0x00,
     };
     REQUIRE_THROWS_AS(
-      decode_constants(consts, alloc, data, 1),
+      decode_constants(consts, alloc, data, sizeof(data)),
       decode_eof_error
     );
   }
@@ -61,8 +61,19 @@ TEST_CASE("decode_constants", "[decode_constants]") {
       0x03, 0x00, 0x00, 0x00, 0x00,
     };
     REQUIRE_THROWS_AS(
-      decode_constants(consts, alloc, data, 1),
+      decode_constants(consts, alloc, data, sizeof(data)),
       decode_const_type_error
+    );
+  }
+
+  SECTION("invalid constant index") {
+    char data[] = {
+      0x00, 0x01, 0x00, 0x00, 0x00,
+            0x00, 0x00, 0x00, 0x00,
+    };
+    REQUIRE_THROWS_AS(
+      decode_constants(consts, alloc, data, sizeof(data)),
+      decode_const_range_error
     );
   }
 }
