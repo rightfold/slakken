@@ -29,6 +29,14 @@ value const& array_value::operator[](std::size_t index) const {
 
 array_value::array_value() noexcept = default;
 
+std::string atom_value::get_string() const {
+  return std::string(name, name + size_field);
+}
+
 atom_value::atom_value() noexcept = default;
+
+double float_value::get() const noexcept {
+  return value;
+}
 
 float_value::float_value() noexcept = default;
