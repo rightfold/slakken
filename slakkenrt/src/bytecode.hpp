@@ -90,13 +90,13 @@ namespace slakken {
   };
 
   /**
-   * Decode bytecode constants.
+   * Decode bytecode constant pool.
    *
    * \relate const_pool
    *
    * \exception decode_error on invalid input.
    */
-  void decode_constants(const_pool&, alloc&, char const*, std::size_t);
+  void decode_const_pool(const_pool&, alloc&, char const*, std::size_t);
 
   /**
    * Decode bytecode instructions.

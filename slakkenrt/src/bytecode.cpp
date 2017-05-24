@@ -71,7 +71,7 @@ namespace {
   }
 }
 
-void slakken::decode_constants(const_pool& consts, alloc& alloc, char const* binary, std::size_t binary_size) {
+void slakken::decode_const_pool(const_pool& consts, alloc& alloc, char const* binary, std::size_t binary_size) {
   for (auto begin = binary, end = binary + binary_size; begin != end;) {
     switch (*begin++) {
     case 0x00:
