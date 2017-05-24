@@ -2,10 +2,13 @@
 #include "value.hpp"
 
 #include <algorithm>
+#include <cassert>
 #include <cstddef>
 #include <utility>
 
 using namespace slakken;
+
+soil::~soil() = default;
 
 value const& alloc::alloc_array(value const* const* elements, std::size_t size) {
   static_assert(noexcept(array_value()), "array_value must have a noexcept constructor");
@@ -30,8 +33,7 @@ value const& alloc::alloc_atom(char const* name, std::size_t size) {
   upointer->size_field = size;
   std::copy(name, name + size, upointer->name);
 
-  return register_(std::move(upointer));
-}
+  return register_(std::move(upointer)); }
 
 value const& alloc::alloc_float(double value) {
   static_assert(noexcept(float_value()), "float_value must have a noexcept constructor");
@@ -45,6 +47,33 @@ value const& alloc::alloc_float(double value) {
   return register_(std::move(upointer));
 }
 
+void alloc::add_soil(soil const& soil) {
+  soils[&soil] += 1;
+}
+
+void alloc::remove_soil(soil const& soil) {
+  auto& count = soils.at(&soil);
+  assert(count >= 1);
+  count -= 1;
+  if (count == 0) {
+    soils.erase(&soil);
+  }
+}
+
+void alloc::collect_garbage() {
+  mark_roots();
+  for (auto it = values.rbegin(); it != values.rend(); ++it) {
+    auto& value = **it;
+    if (value.marked) {
+      mark_children(value);
+      value.marked = false;
+    } else {
+      auto new_it = values.erase(it.base());
+      it = decltype(values)::reverse_iterator(new_it);
+    }
+  }
+}
+
 void alloc::value_delete::operator()(value const* pointer) const {
   pointer->~value();
   operator delete(const_cast<value*>(pointer));
@@ -54,4 +83,24 @@ value const& alloc::register_(owning<value const> upointer) {
   auto pointer = upointer.get();
   values.push_back(std::move(upointer));
   return *pointer;
+}
+
+void alloc::mark_roots() {
+  for (auto soil_kv : soils) {
+    mark_soil(*soil_kv.first);
+  }
+}
+
+void alloc::mark_soil(soil const& soil) {
+  auto root_count = soil.root_count();
+  for (decltype(root_count) i = 0; i < root_count; ++i) {
+    soil.root_at(i).marked = true;
+  }
+}
+
+void alloc::mark_children(value const& value) {
+  auto size = value.size();
+  for (decltype(size) i = 0; i < size; ++i) {
+    value[i].marked = true;
+  }
 }

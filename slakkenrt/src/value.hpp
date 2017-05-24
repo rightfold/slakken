@@ -6,10 +6,16 @@
 namespace slakken {
   class value {
   public:
+    value() noexcept;
     virtual ~value();
 
     virtual std::size_t size() const;
     virtual value const& operator[](std::size_t) const;
+
+  private:
+    mutable bool marked;
+
+    friend class alloc;
   };
 
   class array_value : public value {

@@ -4,6 +4,10 @@
 
 using namespace slakken;
 
+value::value() noexcept
+  : marked(false) {
+}
+
 value::~value() = default;
 
 std::size_t value::size() const {
