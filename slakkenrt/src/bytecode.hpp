@@ -10,6 +10,8 @@
 #include <unordered_map>
 
 namespace slakken {
+  struct function_set;
+
   /**
    * Bytecode types and functions.
    */
@@ -70,6 +72,22 @@ namespace slakken {
     };
 
     /**
+     * An error that occurs because an invalid magic number was encountered.
+     */
+    class decode_magic_error : public decode_error {
+    public:
+      decode_magic_error();
+    };
+
+    /**
+     * An error that occurs because an invalid version number was encountered.
+     */
+    class decode_version_error : public decode_error {
+    public:
+      decode_version_error();
+    };
+
+    /**
      * An error that occurs because a constant pool entry had an invalid type.
      */
     class decode_const_type_error : public decode_error {
@@ -94,13 +112,21 @@ namespace slakken {
     };
 
     /**
-     * Decode bytecode constant pool.
+     * Decode a bytecode module file.
+     *
+     * \exception decode_error on invalid input.
+     * \exception function_realloc if a function was redefined.
+     */
+    const_pool decode_module(function_set&, alloc&, char const*, std::size_t);
+
+    /**
+     * Decode a bytecode constant pool.
      *
      * \relate const_pool
      *
      * \exception decode_error on invalid input.
      */
-    void decode_const_pool(const_pool&, alloc&, char const*, std::size_t);
+    const_pool decode_const_pool(alloc&, char const*, std::size_t);
 
     /**
      * Decode bytecode instructions.

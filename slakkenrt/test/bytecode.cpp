@@ -10,11 +10,10 @@ using namespace slakken;
 using namespace slakken::bytecode;
 
 TEST_CASE("decode_const_pool", "[decode_const_pool]") {
-  const_pool consts;
   alloc alloc;
 
   SECTION("empty") {
-    decode_const_pool(consts, alloc, nullptr, 0);
+    auto consts = decode_const_pool(alloc, nullptr, 0);
     REQUIRE(consts.size() == 0);
   }
 
@@ -29,7 +28,7 @@ TEST_CASE("decode_const_pool", "[decode_const_pool]") {
             0x02, 0x00, 0x00, 0x00,
     };
 
-    decode_const_pool(consts, alloc, data, sizeof(data));
+    auto consts = decode_const_pool(alloc, data, sizeof(data));
 
     REQUIRE(consts.size() == 4);
 
@@ -52,7 +51,7 @@ TEST_CASE("decode_const_pool", "[decode_const_pool]") {
       0x00, 0x00, 0x00, 0x00,
     };
     REQUIRE_THROWS_AS(
-      decode_const_pool(consts, alloc, data, sizeof(data)),
+      decode_const_pool(alloc, data, sizeof(data)),
       decode_eof_error
     );
   }
@@ -62,7 +61,7 @@ TEST_CASE("decode_const_pool", "[decode_const_pool]") {
       0x03, 0x00, 0x00, 0x00, 0x00,
     };
     REQUIRE_THROWS_AS(
-      decode_const_pool(consts, alloc, data, sizeof(data)),
+      decode_const_pool(alloc, data, sizeof(data)),
       decode_const_type_error
     );
   }
@@ -73,7 +72,7 @@ TEST_CASE("decode_const_pool", "[decode_const_pool]") {
             0x00, 0x00, 0x00, 0x00,
     };
     REQUIRE_THROWS_AS(
-      decode_const_pool(consts, alloc, data, sizeof(data)),
+      decode_const_pool(alloc, data, sizeof(data)),
       decode_const_range_error
     );
   }

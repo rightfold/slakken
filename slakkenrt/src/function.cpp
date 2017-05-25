@@ -12,7 +12,7 @@ function::function()
 
 std::size_t function_set::alloc(std::string name) {
   if (function_names.count(name)) {
-    throw function_realloc(name);
+    throw function_realloc(std::move(name));
   }
   functions.emplace_back();
   auto id = functions.size() - 1;

@@ -1,4 +1,5 @@
 #include "bytecode.hpp"
+#include "function.hpp"
 #include "value.hpp"
 
 #include <algorithm>
@@ -20,6 +21,14 @@ value const* const_pool::root_at(std::size_t index) const {
 
 decode_eof_error::decode_eof_error()
   : decode_error("unexpected eof") {
+}
+
+decode_magic_error::decode_magic_error()
+  : decode_error("invalid magic number") {
+}
+
+decode_version_error::decode_version_error()
+  : decode_error("invalid version number") {
 }
 
 decode_const_type_error::decode_const_type_error()
@@ -75,7 +84,42 @@ namespace {
   }
 }
 
-void slakken::bytecode::decode_const_pool(const_pool& consts, alloc& alloc, char const* binary, std::size_t binary_size) {
+const_pool slakken::bytecode::decode_module(function_set& functions, alloc& alloc, char const* binary, std::size_t binary_size) {
+  auto begin = binary, end = binary + binary_size;
+
+  auto magic = decode<std::uint32_t>(begin, end);
+  if (magic != 0x5143) {
+    throw decode_magic_error();
+  }
+
+  auto major_version = decode<std::uint16_t>(begin, end);
+  if (major_version != 0) {
+    throw decode_version_error();
+  }
+
+  auto minor_version = decode<std::uint16_t>(begin, end);
+  if (minor_version != 0) {
+    throw decode_version_error();
+  }
+
+  auto compiler_length = decode<std::uint32_t>(begin, end);
+  if (compiler_length > end - begin) {
+    throw decode_eof_error();
+  }
+  begin += compiler_length;
+
+  auto const_pool_length = decode<std::uint32_t>(begin, end);
+  if (const_pool_length > end - begin) {
+    throw decode_eof_error();
+  }
+  auto const_pool = decode_const_pool(alloc, begin, const_pool_length);
+  begin += const_pool_length;
+
+  return const_pool;
+}
+
+const_pool slakken::bytecode::decode_const_pool(alloc& alloc, char const* binary, std::size_t binary_size) {
+  const_pool consts;
   for (auto begin = binary, end = binary + binary_size; begin != end;) {
     switch (*begin++) {
     case 0x00:
@@ -91,6 +135,7 @@ void slakken::bytecode::decode_const_pool(const_pool& consts, alloc& alloc, char
       throw decode_const_type_error();
     }
   }
+  return consts;
 }
 
 std::vector<instruction> slakken::bytecode::decode_instructions(function_map const& functions, const_pool const& consts, char const* binary, std::size_t binary_size) {
