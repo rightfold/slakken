@@ -6,6 +6,8 @@
 
 #include <catch.hpp>
 
+#include <cmath>
+
 using namespace slakken;
 using namespace slakken::bytecode;
 
@@ -110,6 +112,34 @@ TEST_CASE("resume", "[resume]") {
         );
       }
     }
+  }
+
+  SECTION("neg.int") {
+    auto test_neg_int = [&] (double in, double out) {
+      SLAKKEN_PUSH_OP_0(main, opcode::neg_int);
+      SLAKKEN_PUSH_OP_0(main, opcode::brk);
+
+      thread.program_counters.emplace_back(main, 0);
+      thread.param_counts.push_back(0);
+      thread.operands.push_back(&alloc.alloc_float(in));
+
+      auto status = resume(alloc, functions, thread);
+
+      REQUIRE(status == resume_status::breakpoint);
+
+      auto& result = *thread.operands.at(0);
+      REQUIRE(dynamic_cast<float_value const&>(result).get() == out);
+      if (in == 0.0) {
+        REQUIRE(!std::signbit(dynamic_cast<float_value const&>(result).get()));
+      }
+    };
+
+    SECTION("42") { test_neg_int(42.0, -42.0); }
+    SECTION("-42") { test_neg_int(-42.0, 42.0); }
+    SECTION("0") { test_neg_int(0.0, 0.0); }
+    SECTION("2147483647") { test_neg_int(2147483647.0, -2147483647.0); }
+    SECTION("-2147483647") { test_neg_int(-2147483647.0, 2147483647.0); }
+    SECTION("-2147483648") { test_neg_int(-2147483648.0, -2147483648.0); }
   }
 }
 
