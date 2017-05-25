@@ -6,6 +6,7 @@
 #include <catch.hpp>
 
 #include <cstdint>
+#include <utility>
 
 using namespace slakken;
 using namespace slakken::bytecode;
@@ -33,6 +34,12 @@ TEST_CASE("decode_module", "[decode_module]") {
     0x00, 0x00, 0x00, 0x00,
   };
 
+  SECTION("ok") {
+    auto const_pool = decode_module(functions, alloc, data, sizeof(data));
+    REQUIRE(functions.functions.size() == 0);
+    REQUIRE(const_pool.size() == 0);
+  }
+
   SECTION("eof") {
     for (std::size_t len = 0; len < sizeof(data); ++len) {
       REQUIRE_THROWS_AS(
@@ -40,5 +47,21 @@ TEST_CASE("decode_module", "[decode_module]") {
         decode_eof_error
       );
     }
+  }
+
+  SECTION("invalid magic number") {
+    std::swap(data[0], data[1]);
+    REQUIRE_THROWS_AS(
+      decode_module(functions, alloc, data, sizeof(data)),
+      decode_magic_error
+    );
+  }
+
+  SECTION("invalid version number") {
+    data[4] = 0x01;
+    REQUIRE_THROWS_AS(
+      decode_module(functions, alloc, data, sizeof(data)),
+      decode_version_error
+    );
   }
 }
