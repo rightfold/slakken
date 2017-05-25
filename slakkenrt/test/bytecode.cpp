@@ -28,10 +28,14 @@ TEST_CASE("decode_module", "[decode_module]") {
     's', 'l', 'a', 'k', 'k', 'e', 'n', 'c', ' ', 'v', '0', '.', '0',
 
     // Constant pool
-    0x11, 0x00, 0x00, 0x00,
+    0x23, 0x00, 0x00, 0x00,
     0x01, 0x03, 0x00, 0x00, 0x00,
           'A', 'B', 'C',
     0x02, -102, -103, -103, -103, -103, -103, -71, 63,
+    0x00, 0x00, 0x00, 0x00, 0x00,
+    0x00, 0x02, 0x00, 0x00, 0x00,
+          0x01, 0x00, 0x00, 0x00,
+          0x02, 0x00, 0x00, 0x00,
 
     // Function map
     0x00, 0x00, 0x00, 0x00,
@@ -45,13 +49,21 @@ TEST_CASE("decode_module", "[decode_module]") {
     }
 
     SECTION("constant pool") {
-      REQUIRE(const_pool.size() == 2);
+      REQUIRE(const_pool.size() == 4);
 
       auto& value0 = dynamic_cast<atom_value const&>(*const_pool[0]);
       REQUIRE(value0.get_string() == "ABC");
 
       auto& value1 = dynamic_cast<float_value const&>(*const_pool[1]);
       REQUIRE(value1.get() == 0.1);
+
+      auto& value2 = dynamic_cast<array_value const&>(*const_pool[2]);
+      REQUIRE(value2.size() == 0);
+
+      auto& value3 = dynamic_cast<array_value const&>(*const_pool[3]);
+      REQUIRE(value3.size() == 2);
+      REQUIRE(&value3[0] == &value1);
+      REQUIRE(&value3[1] == &value2);
     }
   }
 
