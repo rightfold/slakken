@@ -9,6 +9,8 @@ namespace slakken {
    * A pointer to the instruction to be executed next.
    */
   struct program_counter {
+    program_counter(std::size_t, std::size_t);
+
     /**
      * The identifier of the function that houses the bytecode this program
      * counter points into.
@@ -26,7 +28,7 @@ namespace slakken {
    */
   struct thread : soil {
     std::size_t root_count() const override;
-    value const& root_at(std::size_t) const override;
+    value const* root_at(std::size_t) const override;
 
     /**
      * The stack of program counters.
@@ -38,6 +40,17 @@ namespace slakken {
      * local variables, the variables are stored in reverse order.
      */
     std::vector<value const*> variables;
+
+    /**
+     * The stack of parameter counts.
+     */
+    std::vector<std::size_t> param_counts;
+
+    /**
+     * The stack of collections of parameters. Within a collection of
+     * parameters, the parameters are stored in reverse order.
+     */
+    std::vector<value const*> params;
 
     /**
      * The stack of operands used by stack manipulation instructions.

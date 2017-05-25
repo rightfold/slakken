@@ -22,9 +22,9 @@ namespace slakken {
 
     /**
      * Report the root reference at the specified index, which must be in
-     * bounds.
+     * bounds. Null pointer return values are allowed and they will be ignored.
      */
-    virtual value const& root_at(std::size_t) const = 0;
+    virtual value const* root_at(std::size_t) const = 0;
   };
 
   /**

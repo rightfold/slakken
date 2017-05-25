@@ -12,8 +12,8 @@ std::size_t const_pool::root_count() const {
   return size();
 }
 
-value const& const_pool::root_at(std::size_t index) const {
-  return *operator[](index);
+value const* const_pool::root_at(std::size_t index) const {
+  return operator[](index);
 }
 
 decode_eof_error::decode_eof_error()

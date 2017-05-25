@@ -1,7 +1,7 @@
 CXX=g++
 LD=g++
 
-CXXFLAGS=-std=c++14 -Wall -Wextra -Wpedantic -Ivendor
+CXXFLAGS=-std=c++14 -fwrapv -Wall -Wextra -Wpedantic -Ivendor
 LDFLAGS=-std=c++14
 
 SOURCES=$(shell find src -name '*.cpp' ! -name 'main.cpp')

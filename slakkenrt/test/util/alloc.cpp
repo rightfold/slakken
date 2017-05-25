@@ -11,6 +11,6 @@ std::size_t vector_soil::root_count() const {
   return size();
 }
 
-value const& vector_soil::root_at(std::size_t index) const {
-  return *at(index);
+value const* vector_soil::root_at(std::size_t index) const {
+  return at(index);
 }

@@ -42,6 +42,7 @@ sub write_decode {
 }
 
 while (<$in>) {
+  next if /^#/;
   my ($opcode, $mnemonic, @operands) = split /\s+/;
   next unless defined $opcode;
 

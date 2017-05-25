@@ -44,7 +44,7 @@ namespace slakken {
      */
     struct const_pool : std::vector<value const*>, soil {
       std::size_t root_count() const override;
-      value const& root_at(std::size_t) const override;
+      value const* root_at(std::size_t) const override;
     };
 
     /**

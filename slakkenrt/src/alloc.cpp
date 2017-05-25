@@ -98,7 +98,10 @@ void alloc::mark_roots() {
 void alloc::mark_soil(soil const& soil) {
   auto root_count = soil.root_count();
   for (decltype(root_count) i = 0; i < root_count; ++i) {
-    soil.root_at(i).marked = true;
+    auto root = soil.root_at(i);
+    if (root != nullptr) {
+      root->marked = true;
+    }
   }
 }
 
