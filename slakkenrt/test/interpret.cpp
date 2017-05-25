@@ -57,60 +57,40 @@ TEST_CASE("resume", "[resume]") {
   }
 
   SECTION("ck.param.eq") {
+    auto test_ck_param_eq = [&] (std::size_t n, std::size_t m) {
+      SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, n);
+      SLAKKEN_PUSH_OP_0(main, opcode::brk);
+
+      thread.program_counters.emplace_back(main, 0);
+      thread.param_counts.push_back(m);
+      for (decltype(m) i = 0; i < m; ++i) {
+        auto& param = alloc.alloc_array(nullptr, 0);
+        thread.params.push_back(&param);
+      }
+
+      if (n == m) {
+        auto status = resume(alloc, functions, thread);
+        REQUIRE(status == resume_status::breakpoint);
+      } else {
+        REQUIRE_THROWS(resume(alloc, functions, thread));
+      }
+    };
+
     SECTION("succeed") {
-      SECTION("0") {
-        SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, 0);
-        SLAKKEN_PUSH_OP_0(main, opcode::brk);
-
-        thread.program_counters.emplace_back(main, 0);
-        thread.param_counts.push_back(0);
-
-        auto status = resume(alloc, functions, thread);
-
-        REQUIRE(status == resume_status::breakpoint);
-      }
-
-      SECTION("1") {
-        SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, 1);
-        SLAKKEN_PUSH_OP_0(main, opcode::brk);
-
-        thread.program_counters.emplace_back(main, 0);
-        thread.param_counts.push_back(1);
-        thread.params.push_back(&alloc.alloc_array(nullptr, 0));
-
-        auto status = resume(alloc, functions, thread);
-
-        REQUIRE(status == resume_status::breakpoint);
-      }
+      SECTION("0") { test_ck_param_eq(0, 0); }
+      SECTION("1") { test_ck_param_eq(1, 1); }
+      SECTION("2") { test_ck_param_eq(2, 2); }
+      SECTION("3") { test_ck_param_eq(3, 3); }
+      SECTION("4") { test_ck_param_eq(4, 4); }
     }
 
     SECTION("fail") {
-      SECTION("1 != 0") {
-        SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, 1);
-        SLAKKEN_PUSH_OP_0(main, opcode::brk);
-
-        thread.program_counters.emplace_back(main, 0);
-        thread.param_counts.push_back(0);
-
-        REQUIRE_THROWS(
-          resume(alloc, functions, thread)
-        );
-      }
-
-      SECTION("2 != 3") {
-        SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, 2);
-        SLAKKEN_PUSH_OP_0(main, opcode::brk);
-
-        thread.program_counters.emplace_back(main, 0);
-        thread.param_counts.push_back(3);
-        thread.params.push_back(&alloc.alloc_array(nullptr, 0));
-        thread.params.push_back(&alloc.alloc_array(nullptr, 0));
-        thread.params.push_back(&alloc.alloc_array(nullptr, 0));
-
-        REQUIRE_THROWS(
-          resume(alloc, functions, thread)
-        );
-      }
+      SECTION("0 != 1") { test_ck_param_eq(0, 1); }
+      SECTION("1 != 2") { test_ck_param_eq(1, 2); }
+      SECTION("2 != 3") { test_ck_param_eq(2, 3); }
+      SECTION("3 != 2") { test_ck_param_eq(3, 2); }
+      SECTION("2 != 1") { test_ck_param_eq(2, 1); }
+      SECTION("1 != 0") { test_ck_param_eq(1, 0); }
     }
   }
 
