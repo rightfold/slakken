@@ -7,7 +7,7 @@
 #include <cstdint>
 #include <stdexcept>
 #include <string>
-#include <unordered_map>
+#include <vector>
 
 namespace slakken {
   struct function_set;
@@ -50,9 +50,9 @@ namespace slakken {
     };
 
     /**
-     * A mapping from function names to function identifiers.
+     * A mapping from function indices to function identifiers.
      */
-    using function_map = std::unordered_map<std::uint32_t, std::size_t>;
+    using function_map = std::vector<std::size_t>;
 
     /**
      * An error that occurs during bytecode decoding.
@@ -104,6 +104,22 @@ namespace slakken {
     };
 
     /**
+     * An error that occurs because a function definition site was invalid.
+     */
+    class decode_function_definition_site_error : public decode_error {
+    public:
+      decode_function_definition_site_error();
+    };
+
+    /**
+     * An error that occurs because a function map lookup was out of range.
+     */
+    class decode_function_range_error : public decode_error {
+    public:
+      decode_function_range_error();
+    };
+
+    /**
      * An error that occurs because an instruction had an invalid opcode.
      */
     class decode_opcode_error : public decode_error {
@@ -127,6 +143,15 @@ namespace slakken {
      * \exception decode_error on invalid input.
      */
     const_pool decode_const_pool(alloc&, char const*, std::size_t);
+
+    /**
+     * Decode a bytecode function map.
+     *
+     * \relate function_map
+     *
+     * \exception decode_error on invalid input.
+     */
+    function_map decode_function_map(function_set&, char const*, std::size_t);
 
     /**
      * Decode bytecode instructions.

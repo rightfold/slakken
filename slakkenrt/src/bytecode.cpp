@@ -6,6 +6,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <string>
 #include <vector>
 
 using namespace slakken;
@@ -37,6 +38,14 @@ decode_const_type_error::decode_const_type_error()
 
 decode_const_range_error::decode_const_range_error()
   : decode_error("constant index out of range") {
+}
+
+decode_function_definition_site_error::decode_function_definition_site_error()
+  : decode_error("invalid function definition site") {
+}
+
+decode_function_range_error::decode_function_range_error()
+  : decode_error("function index out of range") {
 }
 
 decode_opcode_error::decode_opcode_error()
@@ -115,6 +124,32 @@ const_pool slakken::bytecode::decode_module(function_set& functions, alloc& allo
   auto const_pool = decode_const_pool(alloc, begin, const_pool_length);
   begin += const_pool_length;
 
+  auto function_map_length = decode<std::uint32_t>(begin, end);
+  if (function_map_length > end - begin) {
+    throw decode_eof_error();
+  }
+  auto function_map = decode_function_map(functions, begin, function_map_length);
+  begin += function_map_length;
+
+  while (begin != end) {
+    auto function_index = decode<std::uint32_t>(begin, end);
+
+    if (function_index >= function_map.size()) {
+      throw decode_function_range_error();
+    }
+    auto function_id = function_map[function_index];
+
+    auto& function = functions.functions[function_id];
+    function.variable_count = decode<std::uint32_t>(begin, end);
+
+    auto body_length = decode<std::uint32_t>(begin, end);
+    if (body_length > end - begin) {
+      throw decode_eof_error();
+    }
+    function.instructions = decode_instructions(function_map, const_pool, begin, body_length);
+    begin += body_length;
+  }
+
   return const_pool;
 }
 
@@ -136,6 +171,34 @@ const_pool slakken::bytecode::decode_const_pool(alloc& alloc, char const* binary
     }
   }
   return consts;
+}
+
+function_map slakken::bytecode::decode_function_map(function_set& functions, char const* binary, std::size_t binary_size) {
+  function_map funcs;
+  for (auto begin = binary, end = binary + binary_size; begin != end;) {
+    auto definition_site = *begin++;
+
+    auto name_length = decode<std::uint32_t>(begin, end);
+    if (name_length > end - begin) {
+      throw decode_eof_error();
+    }
+    std::string name(begin, begin + name_length);
+    begin += name_length;
+
+    std::size_t function_id;
+    switch (definition_site) {
+    case 0x00:
+      function_id = functions.function_names.at(name);
+      break;
+    case 0x01:
+      function_id = functions.alloc(std::move(name));
+      break;
+    default:
+      throw decode_function_definition_site_error();
+    }
+    funcs.push_back(function_id);
+  }
+  return funcs;
 }
 
 std::vector<instruction> slakken::bytecode::decode_instructions(function_map const& functions, const_pool const& consts, char const* binary, std::size_t binary_size) {
