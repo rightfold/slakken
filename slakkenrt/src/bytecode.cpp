@@ -96,7 +96,7 @@ namespace {
 const_pool slakken::bytecode::decode_module(function_set& functions, alloc& alloc, char const* binary, std::size_t binary_size) {
   auto begin = binary, end = binary + binary_size;
 
-  auto magic = decode<std::uint32_t>(begin, end);
+  auto magic = decode<std::uint16_t>(begin, end);
   if (magic != 0x5143) {
     throw decode_magic_error();
   }
