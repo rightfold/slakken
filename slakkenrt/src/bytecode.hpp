@@ -50,7 +50,7 @@ namespace slakken {
     /**
      * A mapping from function names to function identifiers.
      */
-    using function_map = std::unordered_map<std::size_t, std::size_t>;
+    using function_map = std::unordered_map<std::uint32_t, std::size_t>;
 
     /**
      * An error that occurs during bytecode decoding.
