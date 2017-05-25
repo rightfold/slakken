@@ -28,7 +28,10 @@ TEST_CASE("decode_module", "[decode_module]") {
     's', 'l', 'a', 'k', 'k', 'e', 'n', 'c', ' ', 'v', '0', '.', '0',
 
     // Constant pool
-    0x00, 0x00, 0x00, 0x00,
+    0x11, 0x00, 0x00, 0x00,
+    0x01, 0x03, 0x00, 0x00, 0x00,
+          'A', 'B', 'C',
+    0x02, -102, -103, -103, -103, -103, -103, -71, 63,
 
     // Function map
     0x00, 0x00, 0x00, 0x00,
@@ -36,8 +39,20 @@ TEST_CASE("decode_module", "[decode_module]") {
 
   SECTION("ok") {
     auto const_pool = decode_module(functions, alloc, data, sizeof(data));
-    REQUIRE(functions.functions.size() == 0);
-    REQUIRE(const_pool.size() == 0);
+
+    SECTION("functions") {
+      REQUIRE(functions.functions.size() == 0);
+    }
+
+    SECTION("constant pool") {
+      REQUIRE(const_pool.size() == 2);
+
+      auto& value0 = dynamic_cast<atom_value const&>(*const_pool[0]);
+      REQUIRE(value0.get_string() == "ABC");
+
+      auto& value1 = dynamic_cast<float_value const&>(*const_pool[1]);
+      REQUIRE(value1.get() == 0.1);
+    }
   }
 
   SECTION("eof") {
