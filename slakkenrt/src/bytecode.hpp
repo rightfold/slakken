@@ -18,7 +18,7 @@ namespace slakken {
      * An opcode is like a function.
      */
     enum class opcode : uint8_t {
-  #include "../build/opcode.inc"
+#include "../build/opcode.inc"
     };
 
     /**
