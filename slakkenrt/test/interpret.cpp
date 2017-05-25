@@ -108,9 +108,10 @@ TEST_CASE("resume", "[resume]") {
       REQUIRE(status == resume_status::breakpoint);
 
       auto& result = *thread.operands.at(0);
-      REQUIRE(dynamic_cast<float_value const&>(result).get() == out);
+      auto value = dynamic_cast<float_value const&>(result).get();
+      REQUIRE(value == out);
       if (in == 0.0) {
-        REQUIRE(!std::signbit(dynamic_cast<float_value const&>(result).get()));
+        REQUIRE(!std::signbit(value));
       }
     };
 
