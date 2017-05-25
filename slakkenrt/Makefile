@@ -16,7 +16,7 @@ all: build/slakken
 
 .PHONY: test
 test: build/slakken-test
-	$<
+	$< --reporter compact --success
 
 .PHONY: docs
 docs: ${SOURCES} ${HEADERS}
