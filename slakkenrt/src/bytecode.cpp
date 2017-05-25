@@ -1,9 +1,11 @@
 #include "bytecode.hpp"
 #include "value.hpp"
 
+#include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <vector>
 
 using namespace slakken;
 using namespace slakken::bytecode;
@@ -46,14 +48,14 @@ namespace {
 
   void decode_array_constant(const_pool& consts, alloc& alloc, char const*& begin, char const* end) {
     auto length = decode<std::uint32_t>(begin, end);
-    std::vector<value const*> elements;
-    for (decltype(length) i = 0; i < length; ++i) {
+    std::vector<value const*> elements(length);
+    std::generate(elements.begin(), elements.end(), [&] {
       auto element_index = decode<std::uint32_t>(begin, end);
       if (element_index >= consts.size()) {
         throw decode_const_range_error();
       }
-      elements.push_back(consts[element_index]);
-    }
+      return consts[element_index];
+    });
     consts.push_back(&alloc.alloc_array(elements.data(), elements.size()));
   }
 
