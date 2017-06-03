@@ -15,7 +15,7 @@ using namespace slakken::bytecode;
   do { \
     instruction inst; \
     inst.what = (opcode); \
-    functions.functions.at(function_id).instructions.push_back(inst); \
+    functions[function_id].instructions.push_back(inst); \
   } while (false)
 
 #define SLAKKEN_PUSH_OP_1(function_id, opcode, op0_t, op0_v) \
@@ -23,7 +23,7 @@ using namespace slakken::bytecode;
     instruction inst; \
     inst.what = (opcode); \
     inst.op0.op0_t = (op0_v); \
-    functions.functions.at(function_id).instructions.push_back(inst); \
+    functions[function_id].instructions.push_back(inst); \
   } while (false)
 
 TEST_CASE("resume", "[resume]") {

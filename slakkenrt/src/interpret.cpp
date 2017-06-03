@@ -44,7 +44,7 @@ namespace {
 resume_status slakken::resume(alloc& alloc, function_set const& functions, thread& thread) {
   while (!thread.program_counters.empty()) {
     auto& pc = thread.program_counters.back();
-    auto& fn = functions.functions[pc.function_id];
+    auto& fn = functions[pc.function_id];
     auto& in = fn.instructions[pc.offset];
     switch (in.what) {
       case opcode::nop:
@@ -131,7 +131,7 @@ resume_status slakken::resume(alloc& alloc, function_set const& functions, threa
         ++pc.offset;
         thread.program_counters.emplace_back(in.op0.fun, 0);
 
-        auto& new_fn = functions.functions[in.op0.fun];
+        auto& new_fn = functions[in.op0.fun];
         grow_by(thread.variables, new_fn.variable_count);
 
         for (decltype(in.op0.imm) i = 0; i < in.op0.imm; ++i) {

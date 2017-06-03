@@ -139,7 +139,7 @@ const_pool slakken::bytecode::decode_module(function_set& functions, alloc& allo
     }
     auto function_id = function_map[function_index];
 
-    auto& function = functions.functions[function_id];
+    auto& function = functions[function_id];
     function.variable_count = decode<std::uint32_t>(begin, end);
 
     auto body_length = decode<std::uint32_t>(begin, end);
@@ -188,7 +188,7 @@ function_map slakken::bytecode::decode_function_map(function_set& functions, cha
     std::size_t function_id;
     switch (definition_site) {
     case 0x00:
-      function_id = functions.function_names.at(name);
+      function_id = functions[name];
       break;
     case 0x01:
       function_id = functions.alloc(std::move(name));

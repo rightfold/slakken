@@ -35,9 +35,18 @@ namespace slakken {
   };
 
   /**
+   * Thrown when an attempt was made to look up an unknown function.
+   */
+  class function_unknown : public std::runtime_error {
+  public:
+    using std::runtime_error::runtime_error;
+  };
+
+  /**
    * A set of functions.
    */
-  struct function_set {
+  class function_set {
+  public:
     /**
      * Allocate a new function with zero local variables and an empty body,
      * ready for mutation.
@@ -47,13 +56,31 @@ namespace slakken {
     std::size_t alloc(std::string name);
 
     /**
-     * All functions. The index of the function is the function identifier.
+     * Look up a function by its identifier. If the identifier is out of bounds
+     * the behavior is undefined.
      */
-    std::vector<function> functions;
+    function& operator[](std::size_t) noexcept;
 
     /**
-     * A mapping from function names to function identifiers.
+     * Look up a function by its identifier. If the identifier is out of bounds
+     * the behavior is undefined.
      */
+    function const& operator[](std::size_t) const noexcept;
+
+    /**
+     * Look up a function identifier by the name of the function.
+     *
+     * \exception function_unknown if the function is not known.
+     */
+    std::size_t operator[](std::string const&) const;
+
+    /**
+     * How many functions are defined?
+     */
+    std::size_t size() const noexcept;
+
+  private:
+    std::vector<function> functions;
     std::unordered_map<std::string, std::size_t> function_names;
   };
 }

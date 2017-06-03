@@ -45,7 +45,7 @@ TEST_CASE("decode_module", "[decode_module]") {
     auto const_pool = decode_module(functions, alloc, data, sizeof(data));
 
     SECTION("functions") {
-      REQUIRE(functions.functions.size() == 0);
+      REQUIRE(functions.size() == 0);
     }
 
     SECTION("constant pool") {

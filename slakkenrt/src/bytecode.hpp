@@ -151,6 +151,7 @@ namespace slakken {
      *
      * \exception decode_error on invalid input.
      * \exception function_realloc if a function was redefined.
+     * \exception function_unknown if an unknown function was referenced.
      */
     function_map decode_function_map(function_set&, char const*, std::size_t);
 
