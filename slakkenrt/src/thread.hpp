@@ -1,6 +1,8 @@
 #pragma once
 
 #include "alloc.hpp"
+#include "function.hpp"
+#include "value.hpp"
 
 #include <vector>
 
@@ -26,35 +28,73 @@ namespace slakken {
   /**
    * The state of a thread.
    */
-  struct thread : soil {
+  class thread : public soil {
+  public:
     std::size_t root_count() const override;
     value const* root_at(std::size_t) const override;
 
     /**
-     * The stack of program counters.
+     * Return whether there are any stack frames.
      */
-    std::vector<program_counter> program_counters;
+    bool empty() const noexcept;
 
     /**
-     * The stack of collections of local variables. Within a collection of
-     * local variables, the variables are stored in reverse order.
+     * Return the program counter on the top of the call stack. The behavior is
+     * undefined if the call stack is empty.
      */
+    struct program_counter& program_counter() noexcept;
+
+    /**
+     * The number of parameters on the current stack frame. The behavior is
+     * undefined if the call stack is empty.
+     */
+    std::size_t param_count() const noexcept;
+
+    /**
+     * The parameter at the given index. The behavior is undefined if this
+     * index is out of bounds or the call stack is empty.
+     */
+    value const& param(std::size_t) const noexcept;
+
+    /**
+     * Push a new stack frame for the given function with the given number of
+     * parameters.
+     */
+    void call(std::size_t, function const&, std::size_t);
+
+    /**
+     * Pop a stack frame off the call stack. The behavior is undefined if the
+     * given function is not the one that was passed to the corresponding
+     * \c call call or if the call stack is empty.
+     */
+    void return_(function const&);
+
+    /**
+     * Pop an operand off the operand stack. The behavior is undefined if the
+     * operand stack is empty.
+     */
+    template<typename T = value>
+    T const& pop();
+
+    /**
+     * Push an operand onto the operand stack.
+     */
+    void push(value const&);
+
+  private:
+    std::vector<struct program_counter> program_counters;
     std::vector<value const*> variables;
-
-    /**
-     * The stack of parameter counts.
-     */
     std::vector<std::size_t> param_counts;
-
-    /**
-     * The stack of collections of parameters. Within a collection of
-     * parameters, the parameters are stored in reverse order.
-     */
     std::vector<value const*> params;
-
-    /**
-     * The stack of operands used by stack manipulation instructions.
-     */
     std::vector<value const*> operands;
   };
+}
+
+namespace slakken {
+  template<typename T>
+  T const& thread::pop() {
+    auto& value = *operands.back();
+    operands.pop_back();
+    return dynamic_cast<T const&>(value);
+  }
 }

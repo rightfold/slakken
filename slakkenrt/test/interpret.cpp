@@ -11,19 +11,19 @@
 using namespace slakken;
 using namespace slakken::bytecode;
 
-#define SLAKKEN_PUSH_OP_0(function_id, opcode) \
+#define SLAKKEN_PUSH_OP_0(function, opcode) \
   do { \
     instruction inst; \
     inst.what = (opcode); \
-    functions[function_id].instructions.push_back(inst); \
+    function.instructions.push_back(inst); \
   } while (false)
 
-#define SLAKKEN_PUSH_OP_1(function_id, opcode, op0_t, op0_v) \
+#define SLAKKEN_PUSH_OP_1(function, opcode, op0_t, op0_v) \
   do { \
     instruction inst; \
     inst.what = (opcode); \
     inst.op0.op0_t = (op0_v); \
-    functions[function_id].instructions.push_back(inst); \
+    function.instructions.push_back(inst); \
   } while (false)
 
 TEST_CASE("resume", "[resume]") {
@@ -31,14 +31,14 @@ TEST_CASE("resume", "[resume]") {
   function_set functions;
   thread thread;
 
-  auto main = functions.alloc("");
+  auto main_id = functions.alloc("");
+  auto& main = functions[main_id];
 
   SECTION("nop") {
     SLAKKEN_PUSH_OP_0(main, opcode::nop);
     SLAKKEN_PUSH_OP_0(main, opcode::brk);
 
-    thread.program_counters.emplace_back(main, 0);
-    thread.param_counts.push_back(0);
+    thread.call(main_id, main, 0);
 
     auto status = resume(alloc, functions, thread);
 
@@ -48,8 +48,7 @@ TEST_CASE("resume", "[resume]") {
   SECTION("brk") {
     SLAKKEN_PUSH_OP_0(main, opcode::brk);
 
-    thread.program_counters.emplace_back(main, 0);
-    thread.param_counts.push_back(0);
+    thread.call(main_id, main, 0);
 
     auto status = resume(alloc, functions, thread);
 
@@ -61,12 +60,11 @@ TEST_CASE("resume", "[resume]") {
       SLAKKEN_PUSH_OP_1(main, opcode::ck_param_eq, imm, n);
       SLAKKEN_PUSH_OP_0(main, opcode::brk);
 
-      thread.program_counters.emplace_back(main, 0);
-      thread.param_counts.push_back(m);
       for (decltype(m) i = 0; i < m; ++i) {
-        auto& param = alloc.alloc_array(nullptr, 0);
-        thread.params.push_back(&param);
+        auto& value = alloc.alloc_array(nullptr, 0);
+        thread.push(value);
       }
+      thread.call(main_id, main, m);
 
       if (n == m) {
         auto status = resume(alloc, functions, thread);
@@ -99,15 +97,14 @@ TEST_CASE("resume", "[resume]") {
       SLAKKEN_PUSH_OP_0(main, opcode::neg_int);
       SLAKKEN_PUSH_OP_0(main, opcode::brk);
 
-      thread.program_counters.emplace_back(main, 0);
-      thread.param_counts.push_back(0);
-      thread.operands.push_back(&alloc.alloc_float(in));
+      thread.call(main_id, main, 0);
+      thread.push(alloc.alloc_float(in));
 
       auto status = resume(alloc, functions, thread);
 
       REQUIRE(status == resume_status::breakpoint);
 
-      auto& result = *thread.operands.at(0);
+      auto& result = thread.pop();
       auto value = dynamic_cast<float_value const&>(result).get();
       REQUIRE(value == out);
       if (in == 0.0) {
