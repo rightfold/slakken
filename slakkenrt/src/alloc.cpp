@@ -62,8 +62,8 @@ void alloc::remove_soil(soil const& soil) {
 
 void alloc::collect_garbage() {
   mark_roots();
-  for (auto it = values.rbegin(); it != values.rend(); ++it) {
-    auto& value = **it;
+  for (auto it = values.rbegin(); it != values.rend();) {
+    auto& value = **it++;
     if (value.marked) {
       mark_children(value);
       value.marked = false;
